@@ -1,0 +1,67 @@
+\chapter{Special solvers and sparse matrix}
+\textbf{Special solvers} are methods that are designed to efficiently solve specific types of linear problems. These systems frequently exhibit unique traits or structures that can be used to enhance the computational process. Special solutions seek to increase efficiency, eliminate numerical errors, and capitalize on the problem's unique properties.
+\newline
+One frequent sort of special solver is intended for tridiagonal systems, in which the coefficient matrix is generally zero except for the main diagonal and two nearby diagonals. The Thomas algorithm, as implemented in the MATLAB code, is an example of a specialized solver for tridiagonal problems. Special solvers are commonly utilized in situations when the underlying matrix structure enables a more streamlined and computationally efficient solution.
+\newline
+Sparse matrices have a large number of zeros. Sparse matrices retain only nonzero elements and their indices, saving memory and increasing computing performance. These matrices are common in large-scale applications, such as finite element analysis and network problems, when memory usage is an issue. Special algorithms for sparse matrices take advantage of their distinct structure, making them critical for optimizing numerical calculations and solving systems of equations in a variety of scientific and technical domains.
+
+
+\section*{Introduction}
+
+In this report, we explore the implementation and analysis of a function designed to solve tridiagonal systems of linear equations and sparse matrix. Tridiagonal systems often arise in various mathematical and computational contexts, and efficient solvers are crucial for their solution. The provided MATLAB function utilizes the Thomas algorithm, a specialized method for tridiagonal systems, relying exclusively on vector operations with diagonal vectors and those in the right-hand side array.
+
+\subsection*{Source Code}
+
+The provided MATLAB code implements a function, \texttt{solveTridiagonalSystem}, which takes the coefficients of a tridiagonal matrix (\texttt{a}, \texttt{b}, \texttt{c}) and the right-hand side vector (\texttt{d}). The code follows the Thomas algorithm, performing forward elimination and back-substitution to find the solution vector \texttt{x}. Below is the provided code snippet:
+\begin{center}
+    \begin{lstlisting}[language=MATLAB, caption=Source Code]
+        %%the start form here
+function x = solveTridiagonalSystem(a, b, c, d)
+    % tridiagonal system of linear equations using the Thomas algorithm
+    
+    % input sizes
+    n = length(b);
+    assert(length(a) == n && length(c) == n && length(d) == n, 'Input sizes mismatch');
+
+    % Initial sol
+    alpha = b;
+    s = d;
+
+    % Forward elimination
+    for i = 2:n
+        m = a(i) / alpha(i - 1);
+        alpha(i) = b(i) - (c(i - 1) * m);
+        s(i) = d(i) - (s(i - 1) * m);
+    end
+
+    % Back-substitution to find the solution
+    x(n) = s(n) / alpha(n);
+    for i = n - 1:-1:1
+        x(i) = (s(i) - (c(i) * x(i + 1))) / alpha(i);
+    end
+end
+% Example usage
+%a = [1; 1; 1];   % Diagonal coefficients
+%b = [2; 2; 2];   % Upper diagonal coefficients
+%c = [3; 3; 3];   % Lower diagonal coefficients
+%d = [4; 4; 4];   % Right-hand side coefficients
+
+    \end{lstlisting}
+\end{center}
+
+
+
+
+\section*{Analysis}
+
+The Thomas algorithm has well-known properties that contribute to its efficiency and numerical stability. In this section, we examine the algorithm and study its properties, focusing on the numerical cost as a function of the system size (\texttt{n}). Additionally, we experiment with diagonal dominant matrices to observe and comment on the behavior of super/sub-diagonal norms.
+
+\section*{Results}
+
+The numerical cost of the algorithm is expected to exhibit linear complexity with respect to the system size \texttt{n}. The Hadamard vector multiplications utilized in the algorithm contribute to its efficiency.\newline
+Experimenting with diagonal dominant matrices allows us to observe the behavior of super/sub-diagonal norms. Understanding these norms is crucial for assessing the stability and accuracy of the solution method.
+
+\subsection*{Conclusion}
+
+In conclusion, the implementation of the tridiagonal system solver using the Thomas algorithm provides an efficient and numerically stable approach. The analysis and experimentation contribute to a better understanding of the algorithm's properties, especially its numerical cost and behavior with diagonal dominant matrices.
+

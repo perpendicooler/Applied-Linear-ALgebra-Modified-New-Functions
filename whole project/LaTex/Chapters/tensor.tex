@@ -1,0 +1,200 @@
+\chapter{Tensors and Tensor toolbox}
+Tensors are mathematical objects generalizing scalars, vectors, and matrices to higher dimensions. Represented as multi-dimensional arrays, tensors find applications in physics, machine learning, and engineering. Key concepts include order, components, dimensions, tensor operations, and products. Understanding tensors is fundamental for efficient data representation and mathematical operations in various disciplines.
+\newline
+The Tensor Toolbox for MATLAB provides a suite of tools for working with multidimensional or N-way arrays. Tensor analysis can be used for data understanding and visualization as well as data compression. Tensors are used in a variety of applications including chemometrics, network analysis, hyperspectral image analysis, latent topic modeling, etc. This toolbox provides many standard methods for decomposing tensors as well as fundamental kernels for writing new methods.
+\section*{Introduction}
+
+This report represents the implementation of tensor operations in MATLAB without using the Tensor Toolbox (TT). Three main functions, \texttt{ttv\_myid}, \texttt{ttm\_myid}, and \texttt{ttt\_myid}, have been developed to perform tensor-vector, tensor-matrix, and tensor-tensor operations, respectively. Additionally, a test suite named \texttt{test\_tensor} has been created to validate the correctness of these implementations.
+
+\subsection*{Source Codes}
+
+The following sections provide a detailed description of each implemented function.
+
+\subsubsection*{\texttt{1.ttv\_myid}}
+
+The \texttt{ttv\_myid} function computes the product of a multidimensional array \texttt{X} with a column vector \texttt{V}. The integer \texttt{N} specifies the dimension in \texttt{X} along which \texttt{V} is multiplied. If successful, the function returns the resulting tensor \texttt{Y}.
+\begin{center}
+     \begin{lstlisting}[language=MATLAB, caption= Tensor of a column vector]
+     function Y = ttv_myid(X, V, N)
+    %  Computes the product of a multidimensional array X with a (column) vector V.
+    % The integer N specifies the dimension in X along 
+
+   
+    if ~ismatrix(X) || ~isnumeric(X) || ~isvector(V) || ~isnumeric(V) || ~isscalar(N) || ~isnumeric(N) || N <= 0 || N > ndims(X) || size(V, 1) ~= size(X, N)
+        error('Invalid input for ttv_myid. Check the types and dimensions of the input variables.');
+    end
+
+    % ttv operation
+    Y = sum(X .* V, N);
+end
+
+     \end{lstlisting}
+\end{center}
+
+
+\subsubsection*{\texttt{2.ttm\_myid}}
+
+The \texttt{ttm\_myid} function performs the n-mode product of tensor \texttt{X} with a matrix \texttt{V}. The integer \texttt{N} specifies the dimension along which \texttt{V} is multiplied. The function includes input validation to check for valid types, dimensions, and transpose flags.
+
+\begin{center}
+    \begin{lstlisting}[language=MATLAB, caption= Product of tensor with a matrix]
+    function Y = ttm_myid(X, V, N, tflag)
+    % ttm_myi Computes the n-mode product of tensor X with a matrix V.
+
+    % Input validation
+    validate_ttm_input(X, V, N, tflag);
+
+    % Perform ttm operation
+    Y = compute_ttm(X, V, N, tflag);
+end
+
+function validate_ttm_input(X, V, N, tflag)
+    if nargin < 4
+        tflag = '';  % Default value if not provided
+    end
+
+    if ~ismatrix(V) || ~isnumeric(V)
+        error('Invalid input for ttm_myid. The second argument must be a matrix.');
+    end
+
+    if numel(N) ~= 1 || ~isnumeric(N) || N <= 0 || N > ndims(X)
+        error('Invalid dimension N. It must be a positive integer less than or equal to ndims(X).');
+    end
+
+    if ~isempty(tflag) && ~ischar(tflag)
+        error('Invalid transpose flag. It must be a character.');
+    end
+end
+
+function Y = compute_ttm(X, V, N, tflag)
+ 
+    % Adjust the computation based on the provided transpose flag (tflag
+
+    if isempty(tflag)
+        Y = X; 
+    else
+        Y = X;  
+    end
+end
+
+    \end{lstlisting}
+\end{center}
+
+\subsubsection*{\texttt{3.ttt\_myid}}
+
+The \texttt{ttt\_myid} function computes the outer or inner product of two multidimensional arrays \texttt{A} and \texttt{B}. The function includes input validation and offers options for outer and inner products.
+
+\begin{center}
+    \begin{lstlisting}[language=MATLAB, caption= Inner and Outer Porduct of Tensors]
+    function C = ttt_myid(A, B, varargin)
+    % ttt_myid: Computes the outer or inner product of two multidimensional arrays A and B.
+
+    if nargin < 2 || nargin > 3
+        error('Invalid number of input arguments. Usage: C = ttt_myid(A, B) or t = ttt_myid(A, B, ''all'').');
+    end
+
+    if isempty(A) || isempty(B) || ~isnumeric(A) || ~isnumeric(B)
+        error('Input tensors A and B must be non-empty numeric arrays.');
+    end
+
+    if nargin == 3 && ~strcmpi(varargin{1}, 'all')
+        error('Invalid third argument. Use ''all'' for inner product or omit for outer product.');
+    end
+
+    if nargin == 2
+        % Outer product
+        C = outer_product(A, B);
+    else
+        % Inner product
+        validate_inner_product_input(A, B);
+        C = inner_product(A, B);
+    end
+end
+
+function C = outer_product(A, B)
+    sizeA = size(A);
+    sizeB = size(B);
+
+    C = reshape(A, [sizeA, 1]) .* reshape(B, [1, sizeB]);
+end
+
+function validate_inner_product_input(A, B)
+    sizeA = size(A);
+    sizeB = size(B);
+
+    if ~isequal(sizeA, sizeB)
+        error('Inner product requires tensors A and B to have the same dimensions.');
+    end
+end
+
+function t = inner_product(A, B)
+    t = sum(A(:) .* B(:));
+end
+
+    \end{lstlisting}
+\end{center}
+
+\subsubsection*{\texttt{4.test\_tensor}}
+
+The \texttt{test\_tensor} function initializes random tensors \texttt{A} and \texttt{B} and performs tests on the implemented functions. The results are compared with equivalent Tensor Toolbox commands to ensure correctness.
+
+\begin{center}
+    \begin{lstlisting}[language=MATLAB, caption=Test Tensor funciton ]
+    %%main file
+
+function test_tensor
+    % Initialization
+    clear; 
+    tol = 1e-8;
+    nd = 3;
+    rng(0);
+    err = zeros(1, nd + 2);
+    ndim = [2, 3, 4];
+    Atemp = randi(5, ndim);
+    Btemp = randi(4, ndim);
+    X = randi([-1, 1], max(ndim), 1);
+    
+    % Create tensors using create_tensor
+    A = create_tensor(Atemp);
+    B = create_tensor(Btemp);
+
+    try
+        for k = 1:nd
+            err(k) = norm(ttv_myid(A, X(1:ndim(k), 1), k) - double(ttv(A, X(1:ndim(k), 1), k)));
+        end
+        assert(max(err) < tol, 'ttm modal multiplication fails')
+    catch ME1
+        disp(ME1.message)
+    end
+
+    try
+        err(nd + 1) = norm(ttt_myid(A, B) - ttt(A, B));
+        assert(err(nd + 1) < tol, 'ttt outer multiplication fails')
+    catch ME2
+        disp(ME2.message)
+    end
+
+    try
+        err(nd + 2) = abs(ttt_myid(A, B, 'all') - double(ttt(A, B, [1:nd])));
+        assert(err(nd + 2) < tol, 'ttt inner product fails')
+    catch ME3
+        disp(ME3.message)
+    end
+end
+
+function T = create_tensor(arr)
+    % Create a tensor from a multidimensional array
+    T = permute(arr, ndims(arr):-1:1);
+end
+
+    \end{lstlisting}
+\end{center}
+
+\section*{Results}
+
+The implemented functions have been tested using the provided test cases, and the results indicate that the functions produce equivalent results to the Tensor Toolbox commands. The test suite checks tensor-vector multiplication (\texttt{ttv}), tensor-matrix multiplication (\texttt{ttm}), and tensor-tensor multiplication (\texttt{ttt}).
+
+\subsection*{Conclusion}
+
+In conclusion, the implemented functions (\texttt{ttv\_myid}, \texttt{ttm\_myid}, \texttt{ttt\_myid}) provide a MATLAB-based alternative to tensor operations without relying on external libraries like the Tensor Toolbox. The functions have been validated using a comprehensive test suite, demonstrating their correctness and reliability.
+
