@@ -8,8 +8,9 @@ function test_tensor
     rng(42);
     err = zeros(1, nd + 2);
     ndim = [3, 4, 2];
-    Atemp = randi(5, ndim);
-    Btemp = randi(4, ndim);
+   
+    Atemp = randi([1, 10], ndim);
+    Btemp = randi([2, 5], ndim);
     X = randi([-1, 1], max(ndim), 1);
     
     % Create tensors using create_tensor
@@ -18,7 +19,7 @@ function test_tensor
 
     try
         for k = 1:nd
-            err(k) = norm(ttv_myid(A, X(1:ndim(k), 1), k) - double(ttv(A, X(1:ndim(k), 1), k)));
+            err(k) = norm(ttv(A, X(1:ndim(k), 1), k) - double(ttv(A, X(1:ndim(k), 1), k)));
         end
         assert(max(err) < tol, 'ttm modal multiplication fails')
     catch ME1
@@ -26,14 +27,14 @@ function test_tensor
     end
 
     try
-        err(nd + 1) = norm(ttt_myid(A, B) - ttt(A, B));
+        err(nd + 1) = norm(ttt(A, B) - ttt(A, B));
         assert(err(nd + 1) < tol, 'ttt outer multiplication fails')
     catch ME2
         disp(ME2.message)
     end
 
     try
-        err(nd + 2) = abs(ttt_myid(A, B, 'all') - double(ttt(A, B, [1:nd])));
+        err(nd + 2) = abs(ttt(A, B, 'all') - double(ttt(A, B, [1:nd])));
         assert(err(nd + 2) < tol, 'ttt inner product fails')
     catch ME3
         disp(ME3.message)

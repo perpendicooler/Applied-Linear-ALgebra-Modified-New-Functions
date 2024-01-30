@@ -1,6 +1,6 @@
     clc;
     clear all;
-    %% Code Start form here
+    %Code Start form here
     %Measure  n = [100:100:2000]
     n_values = [100:100:2000];
     execution_times = zeros(size(n_values));
