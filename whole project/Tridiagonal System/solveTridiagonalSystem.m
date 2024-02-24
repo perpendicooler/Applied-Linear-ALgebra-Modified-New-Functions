@@ -1,16 +1,16 @@
-%%the start form here
-function x = solveTridiagonalSystem(a, b, c, d)
-    % tridiagonal system of linear equations using the Thomas algorithm
-    
-    % input sizes
-    n = length(b);
-    assert(length(a) == n && length(c) == n && length(d) == n, 'Input sizes mismatch');
+function solveTridiagonalSystem(a, b, c, d)
+    % Number of equations
+    n = length(d);
 
-    % Initial sol
-    alpha = b;
-    s = d;
+    % Initializing solution vectors
+    alpha = zeros(n, 1);
+    s = zeros(n, 1);
+    x = zeros(n, 1);
 
-    % Forward elimination
+    % Calculating values of alpha and s
+    alpha(1) = b(1);
+    s(1) = d(1);
+
     for i = 2:n
         m = a(i) / alpha(i - 1);
         alpha(i) = b(i) - (c(i - 1) * m);
@@ -22,9 +22,24 @@ function x = solveTridiagonalSystem(a, b, c, d)
     for i = n - 1:-1:1
         x(i) = (s(i) - (c(i) * x(i + 1))) / alpha(i);
     end
+
+    % Printing solution
+    disp('The solution for the tridiagonal system:');
+    for i = 1:n
+        fprintf('x(%d): %f\n', i, x(i));
+    end
+
+    % Calculate norms directly from the coefficients
+    super_diagonal_norm = norm(b, inf);
+    sub_diagonal_norm = norm(c, inf);
+
+    % Displaying results
+    fprintf('Super-diagonal norm: %f\n', super_diagonal_norm);
+    fprintf('Sub-diagonal norm: %f\n', sub_diagonal_norm);
 end
-% Example usage
-%a = [1; 1; 1];   % Diagonal coefficients
-%b = [2; 2; 2];   % Upper diagonal coefficients
-%c = [3; 3; 3];   % Lower diagonal coefficients
-%d = [4; 4; 4];   % Right-hand side coefficients
+%a = [1; 1; 1];
+%b = [2; 2; 2];
+%c = [3; 3; 3];
+%d = [4; 4; 4];
+
+%solveTridiagonalSystem(a, b, c, d);
